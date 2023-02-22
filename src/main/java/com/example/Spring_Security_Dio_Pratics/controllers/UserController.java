@@ -1,6 +1,7 @@
 package com.example.Spring_Security_Dio_Pratics.controllers;
 
 import com.example.Spring_Security_Dio_Pratics.dtos.UserModelDto;
+import com.example.Spring_Security_Dio_Pratics.models.AuthenticationResponse;
 import com.example.Spring_Security_Dio_Pratics.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,27 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/New")
-    public ResponseEntity<String> save(@RequestBody @Valid UserModelDto model){
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid UserModelDto model){
 
         try{
-            userService.save(model.transform());
-            return ResponseEntity.status(HttpStatus.CREATED).body("Usuário Criado com Sucesso!");
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    userService.register(model.transform())
+            );
         }
         catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Esse username já está em uso, tente novamente!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PostMapping("/Authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody @Valid UserModelDto model){
+
+        try{
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(userService.authenticate(model.transform()));
+        }
+        catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }
